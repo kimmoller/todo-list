@@ -1,0 +1,15 @@
+services:
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: todo_list
+
+  todo-list:
+    image: aspnetcoredocker
+    container_name: todo-list
+    build: ./server/
+    ports:
+      - 8080:8080
+    depends_on:
+      - "db"
