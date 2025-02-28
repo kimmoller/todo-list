@@ -1,12 +1,23 @@
 using todo_list;
 using Microsoft.OpenApi.Models;
+using MySqlConnector;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var configuration = builder.Configuration;
+
+builder.Services.AddMySqlDataSource(configuration.GetConnectionString("Default")!);
+builder.Services.AddScoped<ITodoRepository, TodoRepository>();
+builder.Services.AddScoped<IDapperDbConnection, DapperDbConnection>();
+
+builder.Services.AddControllers();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
   {
       c.SwaggerDoc("v1", new OpenApiInfo { Title = "Todo API", Description = "Keep track of your tasks", Version = "v1" });
   });
+
 
 var app = builder.Build();
 
@@ -19,10 +30,6 @@ if (app.Environment.IsDevelopment())
      });
 }
 
-app.MapGet("/", () => TodoDB.GetTodos());
-app.MapGet("/todos/{id}", (int id) => TodoDB.GetTodo(id));
-app.MapPost("/todos", (Todo todo) => TodoDB.CreateTodo(todo));
-app.MapPut("/todos", (Todo todo) => TodoDB.UpdateTodo(todo));
-app.MapDelete("/todos/{id}", (int id) => TodoDB.RemoveTodo(id));
+app.MapControllers();
 
 app.Run();
