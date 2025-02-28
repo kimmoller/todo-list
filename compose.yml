@@ -1,15 +1,30 @@
 services:
   db:
     image: mysql
+    container_name: todo-list-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: todo_list
+      MYSQL_DATABASE: todolist
+      MYSQL_USER: todolist
+      MYSQL_PASSWORD: todolist
+      MYSQL_ROOT_PASSWORD: secret
+    ports:
+      - 3306:3306
+    volumes:
+      - db:/var/lib/mysql
+      - ./server/mysql_schema.sql:/docker-entrypoint-initdb.d/mysql_schema.sql
 
   todo-list:
     image: aspnetcoredocker
     container_name: todo-list
+    restart: always
     build: ./server/
     ports:
       - 8080:8080
     depends_on:
       - "db"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+
+volumes:
+  db:
